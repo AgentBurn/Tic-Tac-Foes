@@ -439,11 +439,9 @@ def win_screen_classic(symbol):
 
 
 def draw_screen_classic():
-    # Generate a random delay between 1 and 2.5 seconds
-    delay = random.uniform(1, 2.5)
-        
-    # Use after to sclear screen
-    root.after(int(delay * 1000), screen_destroy())  # Convert delay to milliseconds
+
+    # destroy the screen and start again
+    screen_destroy()
 
     # Create the draw screen frame
     draw_screen = tk.Frame(root, bg="#1e1e2e")  # Set background color
