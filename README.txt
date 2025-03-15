@@ -14,7 +14,7 @@ Clone this repository to your local machine:
 bash
 Copy
 Edit
-git clone https://github.com/AgentBurn//Tic-Tac_Foes
+git clone https://github.com/AgentBurn//Tic-Tac-Foes
 Install the required dependencies:
 
 Tic-Tac-Foes uses the tkinter library, which comes pre-installed with Python. However, if you don't have it, you can install it using the following:
