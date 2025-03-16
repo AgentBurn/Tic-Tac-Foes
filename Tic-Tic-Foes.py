@@ -134,12 +134,12 @@ def symbol_selector():
     # Bind keypress event for symbol selection
     root.bind("<KeyPress>", on_key_press)
 
-def on_click_handler(row, col):
+def on_click_handler(row, col, board, x, y):
     global mode
     if mode == 1: # classic mode 
         on_click_classic(row, col)
     elif mode == 2: # advanceed mode 
-        on_click_advanced(row, col)
+        on_click_advanced(board, x, y)
     elif mode == 3: # ultimate mode
         on_click_ultimate(row, col)
 
@@ -351,7 +351,10 @@ def classic_ai_turn():
 
     if empty_squares:  # Ensure there are empty squares left
         ai_choice = random.choice(empty_squares)  # Pick a random empty square
-        update_button_classic(ai_choice, str(ai_symbol))
+        # Generate a random delay between 1 and 4 seconds
+        delay = random.uniform(1, 2.5)        
+        # Use after to call classic_ai_turn with the delay
+        root.after(int(delay * 1000), update_button_classic(ai_choice, str(ai_symbol)))  # Convert delay to milliseconds
         player1_turn = True  # Give turn back to player
 
     # Check if the AI won
@@ -439,8 +442,6 @@ def win_screen_classic(symbol):
 
 
 def draw_screen_classic():
-
-    # destroy the screen and start again
     screen_destroy()
 
     # Create the draw screen frame
@@ -460,15 +461,161 @@ def draw_screen_classic():
 # this function is a placeholder
 def load_attt_grid():
     screen_destroy()
+    root.geometry("1000x1000")
+    # Create advanced game frame
+    game_frame = tk.Frame(root, bg="#1e1e2e")
+    game_frame.pack(expand=True, fill="both", padx=20, pady=20)
+
+    global buttons 
+    buttons = []  # Store buttons for each board
+
+    for i in range(3):
+        for j in range(3):
+            board_frame = tk.Frame(game_frame, bg="#1e1e2e")  # No border, just plain layout
+            board_frame.grid(row=i, column=j, sticky="nsew", padx=5, pady=5)
+
+            board_buttons = []
+            for x in range(3):
+                for y in range(3):
+                    button = tk.Button(board_frame, text="", font=("Arial", 16, "bold"), width=4, height=2,
+                                    bg="#5b4279", fg="white", activebackground="#5b4279", activeforeground="white",
+                                    relief="flat", highlightthickness=0,)
+                    button.grid(row=x, column=y, sticky="nsew", padx=2, pady=2)
+                    button.config(command=lambda b=len(buttons), bx=x, by=y: on_click_handler(0, 0, b, bx, by))
+                    button.bind("<Enter>", on_enter_classic)
+                    button.bind("<Leave>", on_leave_advanced)
+                    board_buttons.append(button)
+
+            buttons.append(board_buttons)
+
+    # Make the grid expand properly
+    for i in range(3):
+        game_frame.columnconfigure(i, weight=1)
+        game_frame.rowconfigure(i, weight=1)
+    
+    if not player2_exists and not player1_turn:
+        advanced_ai_turn(20)
+
+
+# this function is a placeholder
+def on_click_advanced(board, x, y):
+    index = x * 3 + y
+    # update_button_advanced(board, index, "x")
+    global player1_turn, player2_exists
+
+    # Prevent clicking on an already occupied square
+    if buttons[board][index].cget("text") != "":
+        return
+
+    # Turn handling logic
+    if player1_turn and not player2_exists:
+        update_button_advanced(board,index, str(user_symbol))
+        player1_turn = False
+        # Generate a random delay between 1 and 4 seconds
+        delay = random.uniform(1, 2.5)        
+        # Use after to call classic_ai_turn with the delay
+        root.after(int(delay * 1000), advanced_ai_turn(index))  # Convert delay to milliseconds
+    elif player1_turn and player2_exists:
+        update_button_advanced(board,index, str(user_symbol))
+        player1_turn = False
+    elif player2_exists and not player1_turn:
+        update_button_advanced(board,index, str(ai_symbol))
+        player1_turn = True
+
+def advanced_ai_turn(index):
+    global player1_turn
+    if index > 8:
+        index = random.randint(0, 8)
+    # Get all empty squares
+    empty_squares = [i for i, button in enumerate(buttons[index]) if button.cget("text") == ""]
+
+    if empty_squares:  # Ensure there are empty squares left
+        ai_choice = random.choice(empty_squares)  # Pick a random empty square
+        update_button_advanced(index,ai_choice, str(ai_symbol))
+        player1_turn = True  # Give turn back to player
+
+    # Check if the AI won
+    winner, symbol = check_winner_advanced()
+    if winner:
+        win_screen_advanced(symbol)
+    elif all(button.cget("text") != "" for button in buttons):  # Check for a draw
+        draw_screen_classic()
+
+def check_winner_advanced():
+    """
+    This function checks for a winner in the advanced 3x3 Tic-Tac-Toe game.
+    
+    Returns:
+        - (True, symbol) if a player has won, where 'symbol' is the winning symbol.
+        - (False, "") if there is no winner yet.
+    """
+    
+    # Loop through each 3x3 grid (sub-grid) in buttons
+    for board in range(8):  # We have 9 boards in the global buttons array
+        # Check horizontal rows
+        if buttons[board][0].cget('text') == buttons[board][1].cget('text') == buttons[board][2].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][0].cget('text'))  # Winning row on this board
+        elif buttons[board][3].cget('text') == buttons[board][4].cget('text') == buttons[board][5].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][3].cget('text'))  # Winning row on this board
+        elif buttons[board][6].cget('text') == buttons[board][7].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][6].cget('text'))  # Winning row on this board
+        # Check vertical columns
+        elif buttons[board][0].cget('text') == buttons[board][3].cget('text') == buttons[board][6].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][0].cget('text'))  # Winning row on this board
+        elif buttons[board][1].cget('text') == buttons[board][4].cget('text') == buttons[board][7].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][1].cget('text'))  # Winning row on this board
+        elif buttons[board][2].cget('text') == buttons[board][5].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][2].cget('text'))  # Winning row on this board
+        # check diagonal lines
+        elif buttons[board][0].cget('text') == buttons[board][4].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][0].cget('text'))  # Winning row on this board
+        elif buttons[board][2].cget('text') == buttons[board][4].cget('text') == buttons[board][6].cget('text') and buttons[board][0].cget('text') != "":
+            return True, str(buttons[board][2].cget('text'))  # Winning row on this board
+    # No winner
+    return False, ""
+
+# Function to update button text and style based on the player's symbol
+def update_button_advanced(board, index, symbol):
+    buttons[board][index].config(text=symbol, state="disabled", disabledforeground="white")
+
+def on_leave_advanced(event):
+    event.widget.config(bg="#5b4279")  # Change background back to purple for buttons that are not highlighted
+
+def win_screen_advanced(symbol):
+
+    # destroy the ttt grid 
+    screen_destroy()
+
+    # Create the win screen frame
+    win_screen = tk.Frame(root, bg="#1e1e2e")  # Set background color
+    win_screen.pack(fill="both", expand=True)
+
+    # Adjust window size
+    root.geometry("400x400")
+    root.configure(bg="#1e1e2e")  # Set the main window background
+
+    # Title label with larger font and color
+    win_label = tk.Label(win_screen, text=str(symbol) + " is the winner!", font=("Arial", 50, "bold"), fg="white", bg="#1e1e2e", wraplength=350)  # Set wrap length to 350 pixels
+    win_label.pack(pady= 50)
+
+    # commentary label
+    if user_symbol == str(symbol) and not player2_exists:
+        commentary_label = tk.Label(win_screen, text = "(That's you btw good job)", font=("Arial", 20, "bold"), fg="white", bg="#1e1e2e", wraplength=350)
+        commentary_label.pack()
+    elif user_symbol == str(symbol) and player2_exists:
+        commentary_label = tk.Label(win_screen, text = "Congrats player 1 ", font=("Arial", 20, "bold"), fg="white", bg="#1e1e2e", wraplength=350)
+        commentary_label.pack()    
+    elif user_symbol != str(symbol) and player2_exists:
+        commentary_label = tk.Label(win_screen, text = "Congrats player 2 ", font=("Arial", 20, "bold"), fg="white", bg="#1e1e2e", wraplength=350)
+        commentary_label.pack()   
+    else:
+        commentary_label = tk.Label(win_screen, text = "How did you let this happen? ", font=("Arial", 20, "bold"), fg="white", bg="#1e1e2e", wraplength=350)
+        commentary_label.pack()
 
 # this function is a placeholder
 def load_uttt_grid():
     # Destroy the loading screen
     screen_destroy()
-    
-# this function is a placeholder
-def on_click_advanced():
-    return
 
 # this function is a placeholder
 def on_click_ultimate():
