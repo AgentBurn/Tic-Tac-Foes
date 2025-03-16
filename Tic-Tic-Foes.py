@@ -461,7 +461,7 @@ def draw_screen_classic():
 # this function is a placeholder
 def load_attt_grid():
     screen_destroy()
-    root.geometry("1000x1000")
+    root.geometry("800x800")
     # Create advanced game frame
     game_frame = tk.Frame(root, bg="#1e1e2e")
     game_frame.pack(expand=True, fill="both", padx=20, pady=20)
@@ -511,10 +511,7 @@ def on_click_advanced(board, x, y):
     if player1_turn and not player2_exists:
         update_button_advanced(board,index, str(user_symbol))
         player1_turn = False
-        # Generate a random delay between 1 and 4 seconds
-        delay = random.uniform(1, 2.5)        
-        # Use after to call classic_ai_turn with the delay
-        root.after(int(delay * 1000), advanced_ai_turn(index))  # Convert delay to milliseconds
+        advanced_ai_turn(index)  # Convert delay to milliseconds
     elif player1_turn and player2_exists:
         update_button_advanced(board,index, str(user_symbol))
         player1_turn = False
@@ -530,7 +527,7 @@ def advanced_ai_turn(index):
     empty_squares = [i for i, button in enumerate(buttons[index]) if button.cget("text") == ""]
 
     if empty_squares:  # Ensure there are empty squares left
-        ai_choice = random.choice(empty_squares)  # Pick a random empty square
+        ai_choice = random.choice(empty_squares)  # Pick a random empty square   
         update_button_advanced(index,ai_choice, str(ai_symbol))
         player1_turn = True  # Give turn back to player
 
@@ -538,8 +535,8 @@ def advanced_ai_turn(index):
     winner, symbol = check_winner_advanced()
     if winner:
         win_screen_advanced(symbol)
-    elif all(button.cget("text") != "" for button in buttons):  # Check for a draw
-        draw_screen_classic()
+    # elif all(button.cget("text") != "" for button in buttons):  # Check for a draw
+    #    draw_screen_classic()
 
 def check_winner_advanced():
     """
@@ -555,21 +552,21 @@ def check_winner_advanced():
         # Check horizontal rows
         if buttons[board][0].cget('text') == buttons[board][1].cget('text') == buttons[board][2].cget('text') and buttons[board][0].cget('text') != "":
             return True, str(buttons[board][0].cget('text'))  # Winning row on this board
-        elif buttons[board][3].cget('text') == buttons[board][4].cget('text') == buttons[board][5].cget('text') and buttons[board][0].cget('text') != "":
+        elif buttons[board][3].cget('text') == buttons[board][4].cget('text') == buttons[board][5].cget('text') and buttons[board][3].cget('text') != "":
             return True, str(buttons[board][3].cget('text'))  # Winning row on this board
-        elif buttons[board][6].cget('text') == buttons[board][7].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') != "":
+        elif buttons[board][6].cget('text') == buttons[board][7].cget('text') == buttons[board][8].cget('text') and buttons[board][6].cget('text') != "":
             return True, str(buttons[board][6].cget('text'))  # Winning row on this board
         # Check vertical columns
         elif buttons[board][0].cget('text') == buttons[board][3].cget('text') == buttons[board][6].cget('text') and buttons[board][0].cget('text') != "":
             return True, str(buttons[board][0].cget('text'))  # Winning row on this board
-        elif buttons[board][1].cget('text') == buttons[board][4].cget('text') == buttons[board][7].cget('text') and buttons[board][0].cget('text') != "":
+        elif buttons[board][1].cget('text') == buttons[board][4].cget('text') == buttons[board][7].cget('text') and buttons[board][1].cget('text') != "":
             return True, str(buttons[board][1].cget('text'))  # Winning row on this board
-        elif buttons[board][2].cget('text') == buttons[board][5].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') != "":
+        elif buttons[board][2].cget('text') == buttons[board][5].cget('text') == buttons[board][8].cget('text') and buttons[board][2].cget('text') != "":
             return True, str(buttons[board][2].cget('text'))  # Winning row on this board
         # check diagonal lines
         elif buttons[board][0].cget('text') == buttons[board][4].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') != "":
             return True, str(buttons[board][0].cget('text'))  # Winning row on this board
-        elif buttons[board][2].cget('text') == buttons[board][4].cget('text') == buttons[board][6].cget('text') and buttons[board][0].cget('text') != "":
+        elif buttons[board][2].cget('text') == buttons[board][4].cget('text') == buttons[board][6].cget('text') and buttons[board][2].cget('text') != "":
             return True, str(buttons[board][2].cget('text'))  # Winning row on this board
     # No winner
     return False, ""
