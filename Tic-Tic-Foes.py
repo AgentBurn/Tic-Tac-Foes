@@ -12,6 +12,7 @@ game_started = False # agnostic of gamemode will be set to true when the game st
 player2_exists = False # determine if player 2 exists, along side player1 turn, we have all the info we need to handle turn switching 
 user_chosen = False
 ai_chosen = False
+prev_board = 20 # this is a variable that tracks what the board the previous move was made on 0 to 8. set to 20 to be invalid 
 
 def screen_destroy():
     # clear the screen and restart
@@ -22,7 +23,7 @@ def screen_destroy():
 def splash_screen():
 
     # reset global variables if returning to splash screen
-    global button_generated, mode, user_symbol, ai_symbol, player1_turn, game_started, player2_exists,user_chosen,ai_chosen
+    global button_generated, mode, user_symbol, ai_symbol, player1_turn, game_started, player2_exists,user_chosen,ai_chosen,prev_board
     button_generated = True # reset
     mode = 0 # reset
     user_symbol = ""  # reset
@@ -32,6 +33,7 @@ def splash_screen():
     player2_exists = False # reset
     user_chosen = False
     ai_chosen = False
+    prev_board = 20
 
     screen_destroy()
 
@@ -293,7 +295,7 @@ def create_cttt_grid():
             button.grid(row=row, column=col, sticky="nsew")
             
             # Bind the on_click function, passing the row and column as arguments
-            button.config(command=lambda r=row, c=col: on_click_handler(r, c))
+            button.config(command=lambda r=row, c=col: on_click_handler(r, c,0,0,0))
             
             button.bind("<Enter>", on_enter_classic)
             button.bind("<Leave>", on_leave_classic)
@@ -301,6 +303,7 @@ def create_cttt_grid():
 
     if not player2_exists and not player1_turn:
         classic_ai_turn()
+        
 # the following functions handle logic related to interacting with buttons 
 def on_enter_classic(event):
     event.widget.config(bg="#ffb86c")  # Change background to orangish when player hovers over valid button
@@ -478,7 +481,7 @@ def load_attt_grid():
             for x in range(3):
                 for y in range(3):
                     button = tk.Button(board_frame, text="", font=("Arial", 16, "bold"), width=4, height=2,
-                                    bg="#5b4279", fg="white", activebackground="#5b4279", activeforeground="white",
+                                    bg="#5b4279", fg="red", activebackground="#5b4279", activeforeground="white",
                                     relief="flat", highlightthickness=0,)
                     button.grid(row=x, column=y, sticky="nsew", padx=2, pady=2)
                     button.config(command=lambda b=len(buttons), bx=x, by=y: on_click_handler(0, 0, b, bx, by))
@@ -501,23 +504,29 @@ def load_attt_grid():
 def on_click_advanced(board, x, y):
     index = x * 3 + y
     # update_button_advanced(board, index, "x")
-    global player1_turn, player2_exists
-
+    global player1_turn, player2_exists,prev_board
     # Prevent clicking on an already occupied square
     if buttons[board][index].cget("text") != "":
         return
 
     # Turn handling logic
-    if player1_turn and not player2_exists:
+    if player1_turn and not player2_exists and (prev_board == 20 or board == prev_board):
         update_button_advanced(board,index, str(user_symbol))
         player1_turn = False
         advanced_ai_turn(index)  # Convert delay to milliseconds
-    elif player1_turn and player2_exists:
+    elif player1_turn and player2_exists and (prev_board == 20 or board == prev_board):
         update_button_advanced(board,index, str(user_symbol))
         player1_turn = False
-    elif player2_exists and not player1_turn:
+    elif player2_exists and not player1_turn and (prev_board == 20 or board == prev_board):
         update_button_advanced(board,index, str(ai_symbol))
         player1_turn = True
+
+    # Check if the gamestate is won
+    winner, symbol = check_winner_advanced()
+    if winner:
+        win_screen_advanced(symbol)
+    elif all(button.cget("text") != "" for row in buttons for button in row):  # Check for a draw
+        draw_screen_classic()
 
 def advanced_ai_turn(index):
     global player1_turn
@@ -531,12 +540,12 @@ def advanced_ai_turn(index):
         update_button_advanced(index,ai_choice, str(ai_symbol))
         player1_turn = True  # Give turn back to player
 
-    # Check if the AI won
+    # Check if the gamestate is won
     winner, symbol = check_winner_advanced()
     if winner:
         win_screen_advanced(symbol)
-    # elif all(button.cget("text") != "" for button in buttons):  # Check for a draw
-    #    draw_screen_classic()
+    elif all(button.cget("text") != "" for row in buttons for button in row):  # Check for a draw
+        draw_screen_classic()
 
 def check_winner_advanced():
     """
@@ -571,9 +580,18 @@ def check_winner_advanced():
     # No winner
     return False, ""
 
+def white_symbol():
+    for i in range(len(buttons)):  # Loop through rows (outer list)
+        for j in range(len(buttons[i])):  # Loop through columns (inner list)
+            if buttons[i][j].cget('text') != "" and buttons[i][j].cget('fg') == "red":
+                buttons[i][j].config(fg="white")
+
 # Function to update button text and style based on the player's symbol
 def update_button_advanced(board, index, symbol):
-    buttons[board][index].config(text=symbol, state="disabled", disabledforeground="white")
+    global prev_board
+    prev_board = index
+    white_symbol()
+    buttons[board][index].config(text=symbol, fg="red")
 
 def on_leave_advanced(event):
     event.widget.config(bg="#5b4279")  # Change background back to purple for buttons that are not highlighted
