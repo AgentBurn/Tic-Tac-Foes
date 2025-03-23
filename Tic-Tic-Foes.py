@@ -481,7 +481,7 @@ def draw_screen_classic():
 # this function is a placeholder
 def load_attt_grid():
     screen_destroy()
-    root.geometry("650x650")
+    root.geometry("650x670")
     center_window(root)
     # Create advanced game frame
     game_frame = tk.Frame(root, bg="#1e1e2e")
@@ -647,7 +647,7 @@ def win_screen_advanced(symbol):
 # this function is a placeholder
 def load_uttt_grid():
     screen_destroy()
-    root.geometry("650x650")
+    root.geometry("650x670")
     center_window(root)
     # Create advanced game frame
     game_frame = tk.Frame(root, bg="#1e1e2e")
