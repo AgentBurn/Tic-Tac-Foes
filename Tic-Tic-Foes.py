@@ -2,6 +2,18 @@ import tkinter as tk
 from tkinter import ttk
 import random
 
+# to do list 
+# add a numbered grid later 
+# add online multiplayer 
+# add turn indicator 
+# make buttons nicer 
+# add logic to determine draw detection and detection for if the game is 100% won 
+# add a way to highlight won boards for classic and ultimate game mode 
+# add animated loading screen 
+# none of this is version controlled on github yet 
+# refactor code to reduce number of functions and make code more readable 
+# consider using classes???
+
 # Global variables
 button_generated = True # the button has not been generated yet but the syntax of the function makes it easier to invert the value. this button is agnostic of gamemode 
 mode = 0 # 1 is classic 2 is advanced and 3 is ultimate 
@@ -44,6 +56,7 @@ def splash_screen():
     # Adjust window size
     root.geometry("400x400")
     root.configure(bg="#1e1e2e")  # Set the main window background
+    center_window(root)
 
     # Title label with larger font and color
     splash_label = tk.Label(splash_screen, text="Welcome to Tic-Tac-Foes!", font=("Arial", 18, "bold"), fg="white", bg="#1e1e2e")
@@ -78,6 +91,7 @@ def player_selection_screen():
     # Adjust window size
     root.geometry("400x400")
     root.configure(bg="#1e1e2e")  # Set the main window background
+    center_window(root)
 
     # Title label with larger font and color
     player_selection_label = tk.Label(player_selection_screen, text="How do you want to play?", font=("Arial", 18, "bold"), fg="white", bg="#1e1e2e")
@@ -143,7 +157,7 @@ def on_click_handler(row, col, board, x, y):
     elif mode == 2: # advanceed mode 
         on_click_advanced(board, x, y)
     elif mode == 3: # ultimate mode
-        on_click_ultimate(row, col)
+        on_click_ultimate(board, x, y)
 
 def on_key_press(event):
     """Handles user key press and updates symbol choices."""
@@ -211,6 +225,7 @@ def show_turn_selection():
     # Adjust window size
     root.geometry("400x350")
     root.configure(bg="#1e1e2e")  # Set the main window background
+    center_window(root)
     if player2_exists:
         label = tk.Label(turn_selection_frame, text="Would player 1 like to go first or second?", fg="white", bg="#1e1e2e", font=("Arial", 14))
         label.pack(pady=20)
@@ -277,6 +292,7 @@ def create_cttt_grid():
     screen_destroy()
 
     root.geometry("600x600")  # Set an initial size for the window (adjustable)
+    center_window(root)
 
     # Set up grid layout to fill 90% of the window size
     root.grid_rowconfigure(0, weight=1, uniform="equal")
@@ -303,7 +319,7 @@ def create_cttt_grid():
 
     if not player2_exists and not player1_turn:
         classic_ai_turn()
-        
+
 # the following functions handle logic related to interacting with buttons 
 def on_enter_classic(event):
     event.widget.config(bg="#ffb86c")  # Change background to orangish when player hovers over valid button
@@ -424,6 +440,7 @@ def win_screen_classic(symbol):
     # Adjust window size
     root.geometry("400x400")
     root.configure(bg="#1e1e2e")  # Set the main window background
+    center_window(root)
 
     # Title label with larger font and color
     win_label = tk.Label(win_screen, text=str(symbol) + " is the winner!", font=("Arial", 50, "bold"), fg="white", bg="#1e1e2e", wraplength=350)  # Set wrap length to 350 pixels
@@ -454,7 +471,7 @@ def draw_screen_classic():
     # Adjust window size
     root.geometry("400x400")
     root.configure(bg="#1e1e2e")  # Set the main window background
-
+    center_window(root)
     # Title label with larger font and color
     draw_label = tk.Label(draw_screen, text="The game is a draw :(", font=("Arial", 50, "bold"), fg="white", bg="#1e1e2e", wraplength=350)  # Set wrap length to 350 pixels
     draw_label.pack(pady= 50)
@@ -464,7 +481,8 @@ def draw_screen_classic():
 # this function is a placeholder
 def load_attt_grid():
     screen_destroy()
-    root.geometry("800x800")
+    root.geometry("650x650")
+    center_window(root)
     # Create advanced game frame
     game_frame = tk.Frame(root, bg="#1e1e2e")
     game_frame.pack(expand=True, fill="both", padx=20, pady=20)
@@ -474,7 +492,7 @@ def load_attt_grid():
 
     for i in range(3):
         for j in range(3):
-            board_frame = tk.Frame(game_frame, bg="#1e1e2e")  # No border, just plain layout
+            board_frame = tk.Frame(game_frame, bg="#1e1e2e")
             board_frame.grid(row=i, column=j, sticky="nsew", padx=5, pady=5)
 
             board_buttons = []
@@ -499,8 +517,6 @@ def load_attt_grid():
     if not player2_exists and not player1_turn:
         advanced_ai_turn(20)
 
-
-# this function is a placeholder
 def on_click_advanced(board, x, y):
     index = x * 3 + y
     # update_button_advanced(board, index, "x")
@@ -608,6 +624,7 @@ def win_screen_advanced(symbol):
     # Adjust window size
     root.geometry("400x400")
     root.configure(bg="#1e1e2e")  # Set the main window background
+    center_window(root)
 
     # Title label with larger font and color
     win_label = tk.Label(win_screen, text=str(symbol) + " is the winner!", font=("Arial", 50, "bold"), fg="white", bg="#1e1e2e", wraplength=350)  # Set wrap length to 350 pixels
@@ -629,12 +646,225 @@ def win_screen_advanced(symbol):
 
 # this function is a placeholder
 def load_uttt_grid():
-    # Destroy the loading screen
     screen_destroy()
+    root.geometry("650x650")
+    center_window(root)
+    # Create advanced game frame
+    game_frame = tk.Frame(root, bg="#1e1e2e")
+    game_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
-# this function is a placeholder
-def on_click_ultimate():
-    return
+    global buttons 
+    buttons = []  # Store buttons for each board
+
+    for i in range(3):
+        for j in range(3):
+            board_frame = tk.Frame(game_frame, bg="#1e1e2e")
+            board_frame.grid(row=i, column=j, sticky="nsew", padx=5, pady=5)
+
+            board_buttons = []
+            for x in range(3):
+                for y in range(3):
+                    button = tk.Button(board_frame, text="", font=("Arial", 16, "bold"), width=4, height=2,
+                                    bg="#5b4279", fg="red", activebackground="#5b4279", activeforeground="white",
+                                    relief="flat", highlightthickness=0,)
+                    button.grid(row=x, column=y, sticky="nsew", padx=2, pady=2)
+                    button.config(command=lambda b=len(buttons), bx=x, by=y: on_click_handler(0, 0, b, bx, by))
+                    button.bind("<Enter>", on_enter_classic)
+                    button.bind("<Leave>", on_leave_advanced)
+                    board_buttons.append(button)
+
+            buttons.append(board_buttons)
+
+    # Make the grid expand properly
+    for i in range(3):
+        game_frame.columnconfigure(i, weight=1)
+        game_frame.rowconfigure(i, weight=1)
+    
+    if not player2_exists and not player1_turn:
+        ultimate_ai_turn(20)
+
+def on_click_ultimate(board, x, y):
+    index = x * 3 + y
+    # update_button_advanced(board, index, "x")
+    global player1_turn, player2_exists,prev_board
+    # Prevent clicking on an already occupied square
+    if buttons[board][index].cget("text") != "":
+        return
+
+    # handle penalty shots. A penalty shot occurs when the board the next player was sent to is already won. they can choose to play anywhere 
+    _, _, p1_boards_won, p2_boards_won = check_winner_ultimate()
+    if prev_board in p1_boards_won or prev_board in p2_boards_won or (0 <= prev_board < 9 and all(button.cget("text") != "" for button in buttons[prev_board])):
+        prev_board = 20
+
+    # Turn handling logic
+    if player1_turn and not player2_exists and (prev_board == 20 or board == prev_board):
+        update_button_ultimate(board,index, str(user_symbol))
+        player1_turn = False
+        ultimate_ai_turn(index)  # Convert delay to milliseconds
+    elif player1_turn and player2_exists and (prev_board == 20 or board == prev_board):
+        update_button_ultimate(board,index, str(user_symbol))
+        player1_turn = False
+    elif player2_exists and not player1_turn and (prev_board == 20 or board == prev_board):
+        update_button_ultimate(board,index, str(ai_symbol))
+        player1_turn = True
+
+    # Check if the gamestate is won
+    winner, symbol,_,_ = check_winner_ultimate()
+    if winner:
+        win_screen_advanced(symbol)
+    elif all(button.cget("text") != "" for row in buttons for button in row):  # Check for a draw
+        draw_screen_classic()
+
+def check_winner_ultimate():
+    # need to update this function to actually add proper win checking 
+    # i want this function to return more things 
+    # it needs to return (True, symbol,p1_boards_won,p1_symbol,p2_boards_won_p2_symbol) if a player has won, where 'symbol' is the winning symbol
+    # i think instead of return True, str(buttons[board][0].cget('text')) after an if check, it should add the board index to a list and then check if a 
+    # user has won for example board 0,1,2 (horizontal rows) and what not
+    """
+    This function checks for a winner in the ultimate 3x3 Tic-Tac-Toe game.
+    
+    Returns:
+        - (True, symbol,p1_boards_won,p2_boards_won) if a player has won, where 'symbol' is the winning symbol.
+        - (False, "",p1_boards_won,p2_boards_won) if there is no winner yet.
+    """
+    global user_symbol, ai_symbol  # Ensure we access player symbols
+    symbol = ""
+    p1_boards_won = []  # List of boards won by player 1
+    p2_boards_won = []  # List of boards won by player 2
+
+    # Loop through each 3x3 grid (sub-grid) in buttons
+    for board in range(9):  # We have 9 boards in the global buttons array
+        # Check horizontal rows within each 3x3 grid
+        if buttons[board][0].cget('text') == buttons[board][1].cget('text') == buttons[board][2].cget('text') and buttons[board][0].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][3].cget('text') == buttons[board][4].cget('text') == buttons[board][5].cget('text') and buttons[board][3].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][6].cget('text') == buttons[board][7].cget('text') == buttons[board][8].cget('text') and buttons[board][6].cget('text') == user_symbol:
+            p1_boards_won.append(board)        
+        elif buttons[board][0].cget('text') == buttons[board][1].cget('text') == buttons[board][2].cget('text') and buttons[board][0].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        elif buttons[board][3].cget('text') == buttons[board][4].cget('text') == buttons[board][5].cget('text') and buttons[board][3].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        elif buttons[board][6].cget('text') == buttons[board][7].cget('text') == buttons[board][8].cget('text') and buttons[board][6].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        
+        # Check vertical columns within each 3x3 grid
+        elif buttons[board][0].cget('text') == buttons[board][3].cget('text') == buttons[board][6].cget('text') and buttons[board][0].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][1].cget('text') == buttons[board][4].cget('text') == buttons[board][7].cget('text') and buttons[board][1].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][2].cget('text') == buttons[board][5].cget('text') == buttons[board][8].cget('text') and buttons[board][2].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][0].cget('text') == buttons[board][3].cget('text') == buttons[board][6].cget('text') and buttons[board][0].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        elif buttons[board][1].cget('text') == buttons[board][4].cget('text') == buttons[board][7].cget('text') and buttons[board][1].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        elif buttons[board][2].cget('text') == buttons[board][5].cget('text') == buttons[board][8].cget('text') and buttons[board][2].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        
+        # Check diagonal lines within each 3x3 grid
+        elif buttons[board][0].cget('text') == buttons[board][4].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][2].cget('text') == buttons[board][4].cget('text') == buttons[board][6].cget('text') and buttons[board][2].cget('text') == user_symbol:
+            p1_boards_won.append(board)
+        elif buttons[board][0].cget('text') == buttons[board][4].cget('text') == buttons[board][8].cget('text') and buttons[board][0].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+        elif buttons[board][2].cget('text') == buttons[board][4].cget('text') == buttons[board][6].cget('text') and buttons[board][2].cget('text') == ai_symbol:
+            p2_boards_won.append(board)
+
+    # check the boards that p1 has won 
+    if 0 in p1_boards_won and 1 in p1_boards_won and 2 in p1_boards_won:
+        symbol = user_symbol
+    elif 3 in p1_boards_won and 4 in p1_boards_won and 5 in p1_boards_won:  
+        symbol = user_symbol
+    elif 6 in p1_boards_won and 7 in p1_boards_won and 8 in p1_boards_won:
+        symbol = user_symbol
+    elif 0 in p1_boards_won and 3 in p1_boards_won and 6 in p1_boards_won:
+        symbol = user_symbol
+    elif 1 in p1_boards_won and 4 in p1_boards_won and 7 in p1_boards_won:
+        symbol = user_symbol
+    elif 2 in p1_boards_won and 5 in p1_boards_won and 8 in p1_boards_won:
+        symbol = user_symbol
+    elif 0 in p1_boards_won and 4 in p1_boards_won and 8 in p1_boards_won:
+        symbol = user_symbol
+    elif 2 in p1_boards_won and 4 in p1_boards_won and 6 in p1_boards_won:
+        symbol = user_symbol
+
+    # check the boards that p2 has won 
+    if 0 in p2_boards_won and 1 in p2_boards_won and 2 in p2_boards_won:
+        symbol = ai_symbol
+    elif 3 in p2_boards_won and 4 in p2_boards_won and 5 in p2_boards_won:  
+        symbol = ai_symbol
+    elif 6 in p2_boards_won and 7 in p2_boards_won and 8 in p2_boards_won:
+        symbol = ai_symbol
+    elif 0 in p2_boards_won and 3 in p2_boards_won and 6 in p2_boards_won:
+        symbol = ai_symbol
+    elif 1 in p2_boards_won and 4 in p2_boards_won and 7 in p2_boards_won:
+        symbol = ai_symbol
+    elif 2 in p2_boards_won and 5 in p2_boards_won and 8 in p2_boards_won:
+        symbol = ai_symbol
+    elif 0 in p2_boards_won and 4 in p2_boards_won and 8 in p2_boards_won:
+        symbol = ai_symbol
+    elif 2 in p2_boards_won and 4 in p2_boards_won and 6 in p2_boards_won:
+        symbol = ai_symbol
+    
+    # if the symbol has not been set by this point, no winner yet, play continues 
+    if symbol == "":
+        return (False, "",p1_boards_won,p2_boards_won)
+    else:
+        return (True, symbol,p1_boards_won,p2_boards_won)
+
+def ultimate_ai_turn(index):
+    global player1_turn
+
+    # Retrieve won boards
+    _, _, p1_boards_won, p2_boards_won = check_winner_ultimate()
+    won_boards = set(p1_boards_won + p2_boards_won)  # Combine both player's won boards
+
+    # If the next board is won, pick a random valid board
+    if index > 8 or index in won_boards:
+        valid_boards = [b for b in range(9) if b not in won_boards and any(button.cget("text") == "" for button in buttons[b])]
+        if not valid_boards:  # If no valid boards remain, AI has nowhere to play
+            return
+        index = random.choice(valid_boards)
+
+    # Get all empty squares in the chosen board
+    empty_squares = [i for i, button in enumerate(buttons[index]) if button.cget("text") == ""]
+
+    if empty_squares:  # Ensure there are empty squares left
+        ai_choice = random.choice(empty_squares)  # Pick a random empty square   
+        update_button_ultimate(index, ai_choice, str(ai_symbol))
+        player1_turn = True  # Give turn back to player
+
+    # Check if the game state is won
+    winner, symbol, _, _ = check_winner_ultimate()
+    if winner:
+        win_screen_advanced(symbol)
+    elif all(button.cget("text") != "" for row in buttons for button in row):  # Check for a draw
+        draw_screen_classic()
+
+def update_button_ultimate(board, index, symbol):
+    global prev_board
+    prev_board = index
+    white_symbol()
+    buttons[board][index].config(text=symbol, fg="red")
+
+def center_window(window):
+    # call this to centre the window 
+    window.update_idletasks()  # Ensure window dimensions are updated
+    width = window.winfo_width()
+    height = window.winfo_height()
+    
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    
+    x = (screen_width // 2) - (width // 2)
+    y = (screen_height // 2) - (height // 2)
+    
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+
 
 # Create the main window
 root = tk.Tk()
